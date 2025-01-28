@@ -49,3 +49,4 @@ end
 local a = '192.168.1.1'
 print(tools.numberToCondense(a))
 print(tools.condensedToNumber(tools.numberToCondense(a)))
+print(string.format('%q', _G.IP.packet))
