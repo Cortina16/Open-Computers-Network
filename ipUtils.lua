@@ -1,4 +1,5 @@
 local tools = {}
+local serialization = require("serialization")
 
 tools.numberToCondense = function(readableIP)
     local ipArray = {}
@@ -26,6 +27,21 @@ tools.condensedToNumber = function(condensedIP)
     a = a:sub(3)
     a=a:reverse()
     return a
+end
+
+tools.createPacket = function(protocol, senderPort, targetPort, senderIP, targetIP, senderMAC, targetMAC, data)
+    local packet = {
+        protocol = protocol,
+        senderPort = senderPort,
+        targetPort = targetPort,
+        senderIP = senderIP,
+        targetIP = targetIP,
+        senderMAC = senderMAC,
+        targetMAC = targetMAC,
+        data = data
+    }
+    packet = serialization.serialize(packet)
+    return packet
 end
 
 local setup = function()
