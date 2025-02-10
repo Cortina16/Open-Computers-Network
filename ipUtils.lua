@@ -1,7 +1,32 @@
 local tools = {}
 local serialization = require("serialization")
 
-tools.numberToCondense = function(readableIP)
+tools.encodeAsMAC = function(UUID)
+    UUID:gsub("%-", "")
+    UUIDsect:sub(1, 12)
+
+end
+tools.MACtoCondense = function(MAC)
+    local intMAC = 0
+    MACarray = MAC:gmatch('[:%-]')
+    for hexpair in MAC:gmatch('%x%x') do
+        local hexPortion = tonumber(hexpair, 16)
+        intMAC = intMAC * 256 + hexportion
+    end
+end
+
+tools.CondensedToMAC = function (condensedMAC)
+    local partMACarray = {}
+    local a
+    for i = 1, 6 do
+        partMACarray[7-i] = string.format("%02X", math.floor(condensedMAC % 256))
+        condensedMAC = math.floor(condensedMAC /256)
+        a = table.concat(partMACarray, ':')
+    end
+    return a
+end
+
+tools.IPnumberToCondense = function(readableIP)
     local ipArray = {}
     for i in readableIP:gmatch("%d+") do
         table.insert(ipArray, tonumber(i))
@@ -14,7 +39,7 @@ tools.numberToCondense = function(readableIP)
     return math.floor(internalIPnum)
 end
 
-tools.condensedToNumber = function(condensedIP)
+tools.IPcondensedToNumber = function(condensedIP)
     local parts = {}
     parts[1] = math.floor(condensedIP / 256^3)
     condensedIP = condensedIP %256^3
@@ -66,3 +91,5 @@ local a = '192.168.1.1'
 print(tools.numberToCondense(a))
 print(tools.condensedToNumber(tools.numberToCondense(a)))
 print(string.format('%q', _G.IP.packet))
+
+return tools

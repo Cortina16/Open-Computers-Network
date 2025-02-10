@@ -1,15 +1,15 @@
-local multiport = require("./multiport")
-local ipUtils = require("./ipUtils").tools
+local multiport = require("../multiport")
+`local ipUtils = require("../ipUtils").tools`
 local serialization = require("serialization")
 
 local dhcpServer = {}
 local assignedIPs = {}
-local dhcpServerPort = 67
+dhcpServer.dhcpServerPort = 67
 local subnetMask = nil
 local defaultGateway = nil
 
 --TODO set a value for the subnetMask and defaultGateway
-_G.IP.clientIP = numberToCondense('192.168.1.2')
+_G.IP.clientIP = IPnumberToCondense('192.168.1.2')
 
 dhcpServer.primaryPacketHandling = function(packet)
     packet = serialization.unserialize(packet)
@@ -30,10 +30,10 @@ dhcpServer.assignIP = function(packet) --packet has protocol, senderPort, target
         ip[3] = math.random(1, 255)
         ip[4] = math.random(1, 255)
         local clientIPRequest = table.concat(ip, ".")
-        clientIPRequestStoring = ipUtils.numberToCondense(clientIPRequest)
+        clientIPRequestStoring = ipUtils.IPnumberToCondense(clientIPRequest)
             --handle packet data changing
 
-    until not assignedIPs[clientIPRequestStoring] == clientIPRequestStoring or ipUtils.numberToCondense('255.255.255.255') == clientIPRequestStoring or ipUtils.numberToCondense('192.168.1.2') == clientIPRequestStoring or ip[4] == 1 or ip[4] == 0
+    until not assignedIPs[clientIPRequestStoring] == clientIPRequestStoring or ipUtils.IPnumberToCondense('255.255.255.255') == clientIPRequestStoring or ipUtils.IPnumberToCondense('192.168.1.2') == clientIPRequestStoring or ip[4] == 1 or ip[4] == 0
     sendingPacket = ipUtils.createPacket(packet.protocol, packet.receiverPort, packet.senderPort, packet.targetIP, packet.senderIP, packet.targetMAC, packet.senderMAC, clientIPRequest)
     multiport.outboundOrganizer(sendingPacket) --TODO check out if this packet is right
     return clientIPRequest
@@ -42,6 +42,9 @@ end
 dhcpServer.acknowledgment = function(packet)
     packet = serialization.unserialize(packet)
     if packet.data == 'ACK' then
-        assignedIPs[packet.senderIP] = packet.senderMAC
+
+        assignedIPs[ipUtils.IPnumberToCondense(packet.senderIP)] = packet.senderMAC
     end
 end
+
+return dhcpServer
